@@ -21,8 +21,10 @@ def calculate_months(selected_codelist):
         months[f"month_{num}"] = patients.with_these_clinical_events(
             codelist=selected_codelist,
             between=[start, end],
-            returning="binary_flag",
-            return_expectations={"date": {"earliest": start, "latest": end}},
+            returning="number_of_episodes",
+            return_expectations={
+                "int": {"distribution": "normal", "mean": 2, "stddev": 0.5}
+            },
         )
     return months
 
