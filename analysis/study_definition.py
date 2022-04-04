@@ -6,36 +6,26 @@ from cohortextractor import (
     codelist_from_csv,
 )
 
-start_date = "2020-01-01"
+from analysis.study_utils import last_day_of_month, calculate_months
+
 
 selected_codelist = codelist_from_csv("codelists/opensafely-systolic-blood-pressure-qof.csv",
                                  system="snomed",
                                  column="code",)
 
+start_date = date(year=2020, month=1, day=1)
+end_date = date(year=2020, month=12, day=1)
 
-def calculate_months(selected_codelist):
-    months = {}
-    for num in range(1, 12):
-        start = date.strftime(date(year=2020, month=num, day=1), "%Y-%m-%d")
-        end = date.strftime(date(year=2020, month=num+1, day=1), "%Y-%m-%d")
-        months[f"month_{num}"] = patients.with_these_clinical_events(
-            codelist=selected_codelist,
-            between=[start, end],
-            returning="number_of_episodes",
-            return_expectations={
-                "int": {"distribution": "normal", "mean": 2, "stddev": 0.5}
-            },
-        )
-    return months
-
+index_date = date.strftime(start_date, "%Y-%m-%d")
+latest_date = date.strftime(last_day_of_month(end_date), "%Y-%m-%d")
 
 study = StudyDefinition(
     default_expectations={
-        "date": {"earliest": start_date, "latest": "today"},
+        "date": {"earliest": index_date, "latest": latest_date},
         "rate": "uniform",
         "incidence": 0.5,
     },
-    index_date=start_date,
+    index_date=index_date,
     population=patients.all(),
-    **calculate_months(selected_codelist)
+    **calculate_months(start_date, end_date, selected_codelist)
 )
