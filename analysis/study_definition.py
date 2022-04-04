@@ -1,13 +1,39 @@
-from cohortextractor import StudyDefinition, patients, codelist, codelist_from_csv  # NOQA
+from datetime import date
+
+from cohortextractor import (
+    StudyDefinition,
+    patients,
+    codelist_from_csv,
+)
+
+start_date = "2020-01-01"
+
+selected_codelist = codelist_from_csv("codelists/opensafely-systolic-blood-pressure-qof.csv",
+                                 system="snomed",
+                                 column="code",)
+
+
+def calculate_months(selected_codelist):
+    months = {}
+    for num in range(1, 12):
+        start = date.strftime(date(year=2020, month=num, day=1), "%Y-%m-%d")
+        end = date.strftime(date(year=2020, month=num+1, day=1), "%Y-%m-%d")
+        months[f"month_{num}"] = patients.with_these_clinical_events(
+            codelist=selected_codelist,
+            between=[start, end],
+            returning="binary_flag",
+            return_expectations={"date": {"earliest": start, "latest": end}},
+        )
+    return months
 
 
 study = StudyDefinition(
     default_expectations={
-        "date": {"earliest": "1900-01-01", "latest": "today"},
+        "date": {"earliest": start_date, "latest": "today"},
         "rate": "uniform",
         "incidence": 0.5,
     },
-    population=patients.registered_with_one_practice_between(
-        "2019-02-01", "2020-02-01"
-    ),
+    index_date=start_date,
+    population=patients.all(),
+    **calculate_months(selected_codelist)
 )
