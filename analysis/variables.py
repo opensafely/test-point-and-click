@@ -13,3 +13,4 @@ selected_codelist = codelist_from_csv(
 
 start_date = date(year=2020, month=1, day=1)
 end_date = date(year=2020, month=12, day=1)
+frequency = "monthly"
