@@ -13,9 +13,10 @@ def calculate_months(start_date, end_date, selected_codelist):
     for start_of_month in rrule.rrule(rrule.MONTHLY, dtstart=start_date, until=end_date):
         start = date.strftime(start_of_month, "%Y-%m-%d")
         end = date.strftime(last_day_of_month(start_of_month), "%Y-%m-%d")
-        months[f"{start}"] = patients.with_these_clinical_events(
+        months[f"episode_{start}"] = patients.with_these_clinical_events(
             codelist=selected_codelist,
             between=[start, end],
+            episode_defined_as="series of events each <= 0 days apart",
             returning="number_of_episodes",
             return_expectations={
                 "int": {"distribution": "normal", "mean": 2, "stddev": 0.5}
