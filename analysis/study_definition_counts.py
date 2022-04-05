@@ -1,13 +1,13 @@
-from datetime import date
+from datetime import date, datetime
 
 from cohortextractor import (
     StudyDefinition,
     codelist,
+    codelist_from_csv,
     patients,
 )
 
-from analysis.study_utils import last_day_of_month
-from variables import selected_codelist, start_date, end_date
+from variables import codelist_file, study_start_date, study_end_date
 
 
 def calculate_code_frequency(start_date, end_date, selected_codes):
@@ -28,16 +28,22 @@ def calculate_code_frequency(start_date, end_date, selected_codes):
     return variables
 
 
-index_date = date.strftime(start_date, "%Y-%m-%d")
-latest_date = date.strftime(last_day_of_month(end_date), "%Y-%m-%d")
+start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
+end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
+
+selected_codelist = codelist_from_csv(
+    codelist_file,
+    system="snomed",
+    column="code",
+)
 
 study = StudyDefinition(
     default_expectations={
-        "date": {"earliest": index_date, "latest": latest_date},
+        "date": {"earliest": study_start_date, "latest": study_end_date},
         "rate": "uniform",
         "incidence": 0.5,
     },
-    index_date=index_date,
+    index_date=study_start_date,
     population=patients.all(),
     **calculate_code_frequency(start_date, end_date, selected_codelist),
 )

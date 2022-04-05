@@ -1,16 +1,5 @@
-from datetime import date
+codelist_file = "codelists/opensafely-systolic-blood-pressure-qof.csv"
 
-from cohortextractor import (
-    codelist_from_csv,
-)
-
-
-selected_codelist = codelist_from_csv(
-    "codelists/opensafely-systolic-blood-pressure-qof.csv",
-    system="snomed",
-    column="code",
-)
-
-start_date = date(year=2020, month=1, day=1)
-end_date = date(year=2020, month=12, day=1)
+study_start_date = "2020-01-01"
+study_end_date = "2020-12-31"
 frequency = "monthly"
