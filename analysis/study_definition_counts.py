@@ -1,5 +1,3 @@
-from datetime import date, datetime
-
 from cohortextractor import (
     StudyDefinition,
     codelist,
@@ -7,18 +5,15 @@ from cohortextractor import (
     patients,
 )
 
-from variables import codelist_file, study_start_date, study_end_date
+from variables import codelist_file
 
 
-def calculate_code_frequency(start_date, end_date, selected_codes):
-    start_date_formatted = date.strftime(start_date, "%Y-%m-%d")
-    end_date_formatted = date.strftime(end_date, "%Y-%m-%d")
-
+def calculate_code_frequency(selected_codes):
     variables = {}
     for code in selected_codes:
         variables[f"snomed_{code}"] = patients.with_these_clinical_events(
             codelist([code], system="snomed"),
-            between=[start_date_formatted, end_date_formatted],
+            between=["index_date", "index_date + 1 year"],
             returning="number_of_matches_in_period",
             return_expectations={
                 "incidence": 0.1,
@@ -28,9 +23,6 @@ def calculate_code_frequency(start_date, end_date, selected_codes):
     return variables
 
 
-start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
-end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
-
 selected_codelist = codelist_from_csv(
     codelist_file,
     system="snomed",
@@ -39,17 +31,17 @@ selected_codelist = codelist_from_csv(
 
 study = StudyDefinition(
     default_expectations={
-        "date": {"earliest": study_start_date, "latest": study_end_date},
+        "date": {"earliest": "index_date", "latest": "index_date + 1 year"},
         "rate": "uniform",
         "incidence": 0.5,
     },
-    index_date=study_start_date,
+    index_date="1900-01-01",  # this will be replaced by what's specified in project.yaml
     population=patients.satisfying(
         "currently_registered OR has_died",
-        currently_registered=patients.registered_as_of(study_end_date),
+        currently_registered=patients.registered_as_of("index_date + 1 year"),
         has_died=patients.with_death_recorded_in_primary_care(
-            between=[study_start_date, study_end_date], returning="binary_flag"
+            between=["index_date", "index_date + 1 year"], returning="binary_flag"
         ),
     ),
-    **calculate_code_frequency(start_date, end_date, selected_codelist),
+    **calculate_code_frequency(selected_codelist),
 )

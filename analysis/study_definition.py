@@ -7,50 +7,8 @@ from cohortextractor import (
     patients,
 )
 
-from analysis.study_utils import last_day_of_month, last_day_of_week
-from variables import codelist_file, study_start_date, study_end_date, frequency
+from variables import codelist_file
 
-
-def number_of_episodes(start, end, selected_codelist):
-    return {
-        f"episode_{start}": patients.with_these_clinical_events(
-            codelist=selected_codelist,
-            between=[start, end],
-            episode_defined_as="series of events each <= 0 days apart",
-            returning="number_of_episodes",
-            return_expectations={
-                "int": {"distribution": "normal", "mean": 2, "stddev": 0.5}
-            },
-        ),
-    }
-
-
-def calculate_months(start_date, end_date, selected_codelist):
-    months = {}
-    for start_of_month in rrule.rrule(
-        rrule.MONTHLY, dtstart=start_date, until=end_date
-    ):
-        start = date.strftime(start_of_month, "%Y-%m-%d")
-        end = date.strftime(last_day_of_month(start_of_month), "%Y-%m-%d")
-        months.update(number_of_episodes(start, end, selected_codelist))
-
-    return months
-
-
-def calculate_weeks(start_date, end_date, selected_codelist):
-    weeks = {}
-    for start_of_week in rrule.rrule(rrule.WEEKLY, dtstart=start_date, until=end_date):
-        start = date.strftime(start_of_week, "%Y-%m-%d")
-        end = date.strftime(last_day_of_week(start_of_week), "%Y-%m-%d")
-        weeks.update(number_of_episodes(start, end, selected_codelist))
-
-    return weeks
-
-
-start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
-end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
-
-calculate_frequency = calculate_months if frequency == "monthly" else calculate_weeks
 
 selected_codelist = codelist_from_csv(
     codelist_file,
@@ -60,17 +18,25 @@ selected_codelist = codelist_from_csv(
 
 study = StudyDefinition(
     default_expectations={
-        "date": {"earliest": study_start_date, "latest": study_end_date},
+        "date": {"earliest": "index_date", "latest": "index_date + 1 year"},
         "rate": "uniform",
         "incidence": 0.5,
     },
-    index_date=study_start_date,
+    index_date="1900-01-01",  # this will be replaced by what's specified in project.yaml
     population=patients.satisfying(
         "currently_registered OR has_died",
-        currently_registered=patients.registered_as_of(study_end_date),
+        currently_registered=patients.registered_as_of("index_date + 1 year"),
         has_died=patients.with_death_recorded_in_primary_care(
-            between=[study_start_date, study_end_date], returning="binary_flag"
+            between=["index_date", "index_date + 1 year"], returning="binary_flag"
         ),
     ),
-    **calculate_frequency(start_date, end_date, selected_codelist),
+    episodes=patients.with_these_clinical_events(
+        codelist=selected_codelist,
+        between=["index_date", "index_date + 1 year"],
+        episode_defined_as="series of events each <= 0 days apart",
+        returning="number_of_episodes",
+        return_expectations={
+            "int": {"distribution": "normal", "mean": 2, "stddev": 0.5}
+        },
+    ),
 )
