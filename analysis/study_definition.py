@@ -65,6 +65,12 @@ study = StudyDefinition(
         "incidence": 0.5,
     },
     index_date=study_start_date,
-    population=patients.all(),
+    population=patients.satisfying(
+        "currently_registered OR has_died",
+        currently_registered=patients.registered_as_of(study_end_date),
+        has_died=patients.with_death_recorded_in_primary_care(
+            between=[study_start_date, study_end_date], returning="binary_flag"
+        ),
+    ),
     **calculate_frequency(start_date, end_date, selected_codelist),
 )
