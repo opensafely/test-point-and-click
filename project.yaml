@@ -15,3 +15,9 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_counts.csv
+  generate_top_5_table:
+    run: python:latest python analysis/top_codes_table.py
+    needs: [generate_study_counts]
+    outputs:
+      moderately_sensitive:
+        table: output/top_5_code_table.csv
