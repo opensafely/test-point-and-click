@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from dateutil import relativedelta
 
 
@@ -49,3 +50,55 @@ def group_low_values(df, count_column, code_column, threshold):
             df = df.append(suppressed_count, ignore_index=True)
 
     return df
+
+
+def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
+    """Creates a table of the top 5 codes recorded with the number of events and % makeup of each code.
+    Args:
+        df: A measure table.
+        code_df: A codelist table.
+        code_column: The name of the code column in the codelist table.
+        term_column: The name of the term column in the codelist table.
+        measure: The measure ID.
+        nrows: The number of rows to display.
+    Returns:
+        A table of the top `nrows` codes.
+    """
+
+    # sum event counts over patients
+    event_counts = (
+        df.sum()
+        .drop("patient_id")
+        .rename_axis(code_column)
+        .reset_index(name="Count")
+        .sort_values(ascending=False, by="Count")
+    )
+
+    event_counts = group_low_values(event_counts, "Count", code_column, 5)
+
+    # calculate % makeup of each code
+    total_events = event_counts["Count"].sum()
+    event_counts["Proportion of codes (%)"] = round(
+        (event_counts["Count"] / total_events) * 100, 2
+    )
+
+    # Gets the human-friendly description of the code for the given row
+    # e.g. "Systolic blood pressure".
+    code_df = code_df.set_index(code_column).rename(
+        columns={term_column: "Description"}
+    )
+    event_counts = event_counts.set_index(code_column).join(code_df).reset_index()
+
+    # set description of "Other column" to something readable
+    event_counts.loc[event_counts[code_column] == "Other", "Description"] = "-"
+
+    # Rename the code column to something consistent
+    event_counts.rename(columns={code_column: "Code"}, inplace=True)
+  
+    # drop events column
+    event_counts = event_counts.loc[
+        :, ["Code", "Description", "Proportion of codes (%)"]
+    ]
+
+    # return top n rows
+    return event_counts.head(5)
