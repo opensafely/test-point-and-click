@@ -52,3 +52,4 @@ study = StudyDefinition(
         ),
     ),
     **calculate_code_frequency(start_date, end_date, selected_codelist),
+)
