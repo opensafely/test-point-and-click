@@ -9,23 +9,26 @@ actions:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition
+        --output-format=feather
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/input.feather
         
   generate_study_population_monthly:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition_monthly
+        --output-format=feather
         --index-date-range "2021-01-01 to 2021-12-31 by month"
     outputs:
       highly_sensitive:
-        cohort: output/input_2*.csv
+        cohort: output/input_2*.feather
     
   generate_study_counts:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition_counts
+        --output-format=feather
     outputs:
       highly_sensitive:
-        cohort: output/input_counts.csv
+        cohort: output/input_counts.feather
