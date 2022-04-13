@@ -22,7 +22,7 @@ actions:
         --index-date-range "2021-01-01 to 2021-12-31 by month"
     outputs:
       highly_sensitive:
-        cohort: output/input_2*.feather
+        cohort: output/input_monthly_*.feather
     
   generate_study_counts:
     run: >
