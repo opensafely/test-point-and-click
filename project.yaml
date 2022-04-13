@@ -9,15 +9,23 @@ actions:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition
+    outputs:
+      highly_sensitive:
+        cohort: output/input.csv
+        
+  generate_study_population_monthly:
+    run: >
+      cohortextractor:latest generate_cohort
+        --study-definition study_definition_monthly
         --index-date-range "2021-01-01 to 2021-12-31 by month"
     outputs:
       highly_sensitive:
-        cohort: output/input_*.csv
+        cohort: output/input_2*.csv
+    
   generate_study_counts:
     run: >
       cohortextractor:latest generate_cohort
         --study-definition study_definition_counts
-        --index-date-range "2021-01-01 to 2021-12-31 by month"
     outputs:
       highly_sensitive:
-        cohort: output/input_counts_*.csv
+        cohort: output/input_counts.csv
