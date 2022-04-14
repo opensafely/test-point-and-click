@@ -84,9 +84,11 @@ def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
 
     # Gets the human-friendly description of the code for the given row
     # e.g. "Systolic blood pressure".
+    code_df[code_column] = code_df[code_column].astype(str)
     code_df = code_df.set_index(code_column).rename(
         columns={term_column: "Description"}
     )
+    
     event_counts = event_counts.set_index(code_column).join(code_df).reset_index()
 
     # set description of "Other column" to something readable
@@ -94,7 +96,7 @@ def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
 
     # Rename the code column to something consistent
     event_counts.rename(columns={code_column: "Code"}, inplace=True)
-  
+
     # drop events column
     event_counts = event_counts.loc[
         :, ["Code", "Description", "Proportion of codes (%)"]

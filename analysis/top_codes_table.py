@@ -1,12 +1,13 @@
 import pandas as pd
 from pathlib import Path
 from study_utils import create_top_5_code_table
+from variables import codelist_file
 
 BASE_DIR = Path(__file__).parents[1]
 OUTPUT_DIR = BASE_DIR / "output"
 
 # codelist used for measure
-codelist = pd.read_csv('codelists/opensafely-systolic-blood-pressure-qof.csv', dtype={"code": str})
+codelist = pd.read_csv(codelist_file)
 
 def main():
     df = pd.read_csv(OUTPUT_DIR / "input_counts.csv")
