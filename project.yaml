@@ -19,7 +19,7 @@ actions:
       cohortextractor:latest generate_cohort
         --study-definition study_definition_monthly
         --output-format=feather
-        --index-date-range "2021-01-01 to 2021-12-31 by month"
+        --index-date-range "2021-01-01 to 2021-12-01 by month"
     outputs:
       highly_sensitive:
         cohort: output/input_monthly_*.feather
@@ -30,7 +30,7 @@ actions:
       cohortextractor:latest generate_cohort
         --study-definition study_definition_weekly
         --output-format=feather
-        --index-date-range "2021-01-01 to 2021-12-31 by week"
+        --index-date-range "2021-01-01 to 2021-12-24 by week" 
     outputs:
       highly_sensitive:
         cohort: output/input_weekly_*.feather
