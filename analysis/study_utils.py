@@ -52,7 +52,9 @@ def group_low_values(df, count_column, code_column, threshold):
     return df
 
 
-def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
+def create_top_5_code_table(
+    df, code_df, code_column, term_column, low_count_threshold, nrows=5
+):
     """Creates a table of the top 5 codes recorded with the number of events and % makeup of each code.
     Args:
         df: A measure table.
@@ -60,6 +62,7 @@ def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
         code_column: The name of the code column in the codelist table.
         term_column: The name of the term column in the codelist table.
         measure: The measure ID.
+        low_count_threshold: Value to use as threshold for disclosure control.
         nrows: The number of rows to display.
     Returns:
         A table of the top `nrows` codes.
@@ -74,7 +77,9 @@ def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
         .sort_values(ascending=False, by="Count")
     )
 
-    event_counts = group_low_values(event_counts, "Count", code_column, 5)
+    event_counts = group_low_values(
+        event_counts, "Count", code_column, low_count_threshold
+    )
 
     # calculate % makeup of each code
     total_events = event_counts["Count"].sum()
@@ -88,7 +93,7 @@ def create_top_5_code_table(df, code_df, code_column, term_column, nrows=5):
     code_df = code_df.set_index(code_column).rename(
         columns={term_column: "Description"}
     )
-    
+
     event_counts = event_counts.set_index(code_column).join(code_df).reset_index()
 
     # set description of "Other column" to something readable
