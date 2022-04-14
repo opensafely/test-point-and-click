@@ -36,19 +36,36 @@ actions:
         cohort: output/input_weekly_*.feather
     
 
-  generate_study_counts:
+  generate_study_counts_bp:
     run: >
       cohortextractor:latest generate_cohort
-        --study-definition study_definition_counts
+        --study-definition study_definition_counts_bp
         --output-format=feather
     outputs:
       highly_sensitive:
-        cohort: output/input_counts.feather
+        cohort: output/input_counts_bp.feather
 
+  generate_study_counts_eth:
+    run: >
+      cohortextractor:latest generate_cohort
+        --study-definition study_definition_counts_eth
+        --output-format=feather
+    outputs:
+      highly_sensitive:
+        cohort: output/input_counts_eth.feather
+
+  generate_study_counts_aaa:
+    run: >
+      cohortextractor:latest generate_cohort
+        --study-definition study_definition_counts_aaa
+        --output-format=feather
+    outputs:
+      highly_sensitive:
+        cohort: output/input_counts_aaa.feather
 
   generate_top_5_table:
     run: python:latest python analysis/top_codes_table.py
-    needs: [generate_study_counts]
+    needs: [generate_study_counts_bp, generate_study_counts_eth, generate_study_counts_aaa]
     outputs:
       moderately_sensitive:
-        table: output/top_5_code_table.csv
+        table: output/top_5_code_table_*.csv

@@ -7,7 +7,7 @@ from cohortextractor import (
     patients,
 )
 
-from variables import codelist_file, study_start_date, study_end_date
+from variables import study_start_date, study_end_date
 
 
 def calculate_code_frequency(start_date, end_date, selected_codes):
@@ -33,7 +33,7 @@ start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
 end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
 
 selected_codelist = codelist_from_csv(
-    codelist_file,
+    "codelists/nhsd-primary-care-domain-refsets-ethnall_cod.csv",
     system="snomed",
     column="code",
 )
