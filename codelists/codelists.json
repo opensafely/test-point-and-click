@@ -5,6 +5,18 @@
       "url": "https://codelists.opensafely.org/codelist/opensafely/systolic-blood-pressure-qof/3572b5fb/",
       "downloaded_at": "2022-04-04 09:37:41.936827Z",
       "sha": "f2bc461e351499f4e5573a6f94e760b99979491e"
+    },
+    "nhsd-primary-care-domain-refsets-aaa_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/aaa_cod/20210127",
+      "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/aaa_cod/20210127/",
+      "downloaded_at": "2022-04-14 09:44:50.432158Z",
+      "sha": "3e9e86b02f74149aa0b30f62e1d6ce31658b9692"
+    },
+    "nhsd-primary-care-domain-refsets-ethnall_cod.csv": {
+      "id": "nhsd-primary-care-domain-refsets/ethnall_cod/20210127",
+      "url": "https://codelists.opensafely.org/codelist/nhsd-primary-care-domain-refsets/ethnall_cod/20210127/",
+      "downloaded_at": "2022-04-14 09:44:50.662053Z",
+      "sha": "5a75cc815783d76bd26ec23a7224246be41df72e"
     }
   }
 }
