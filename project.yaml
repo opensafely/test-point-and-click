@@ -24,6 +24,18 @@ actions:
       highly_sensitive:
         cohort: output/input_monthly_*.feather
     
+
+  generate_study_population_weekly:
+    run: >
+      cohortextractor:latest generate_cohort
+        --study-definition study_definition_weekly
+        --output-format=feather
+        --index-date-range "2021-01-01 to 2021-12-31 by week"
+    outputs:
+      highly_sensitive:
+        cohort: output/input_weekly_*.feather
+    
+
   generate_study_counts:
     run: >
       cohortextractor:latest generate_cohort
