@@ -10,7 +10,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 codelist = pd.read_csv(codelist_file)
 
 def main():
-    df = pd.read_csv(OUTPUT_DIR / "input_counts.csv.gz")
+    df = pd.read_feather(OUTPUT_DIR / "input_counts.feather")
     top_5_code_table = create_top_5_code_table(df=df, code_df=codelist, code_column='code', term_column='term', low_count_threshold=low_count_threshold)
     top_5_code_table.to_csv(OUTPUT_DIR / 'top_5_code_table.csv', index=False)
 
