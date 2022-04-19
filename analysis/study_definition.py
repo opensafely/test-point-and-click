@@ -13,7 +13,7 @@ from variables import codelist_file, study_start_date, study_end_date, frequency
 
 def number_of_episodes(start, end, selected_codelist):
     return {
-        f"episode_{start}": patients.with_these_clinical_events(
+        f"episode_{start.replace('-', '_')}": patients.with_these_clinical_events(
             codelist=selected_codelist,
             between=[start, end],
             episode_defined_as="series of events each <= 0 days apart",
