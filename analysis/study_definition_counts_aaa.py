@@ -1,36 +1,6 @@
-from datetime import date, datetime
+from cohortextractor import codelist_from_csv
+from variables import build_study_definition_for_counts
 
-from cohortextractor import (
-    StudyDefinition,
-    codelist,
-    codelist_from_csv,
-    patients,
-)
-
-from variables import study_start_date, study_end_date
-
-
-def calculate_code_frequency(start_date, end_date, selected_codes):
-    start_date_formatted = date.strftime(start_date, "%Y-%m-%d")
-    end_date_formatted = date.strftime(end_date, "%Y-%m-%d")
-
-    variables = {}
-    for code in selected_codes:
-        variables[code] = patients.with_these_clinical_events(
-            codelist([code], system="snomed"),
-            between=[start_date_formatted, end_date_formatted],
-            episode_defined_as="series of events each <= 0 days apart",
-            returning="number_of_episodes",
-            return_expectations={
-                "incidence": 0.1,
-                "int": {"distribution": "normal", "mean": 3, "stddev": 1},
-            },
-        )
-    return variables
-
-
-start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
-end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
 
 selected_codelist = codelist_from_csv(
     "codelists/nhsd-primary-care-domain-refsets-aaa_cod.csv",
@@ -38,19 +8,4 @@ selected_codelist = codelist_from_csv(
     column="code",
 )
 
-study = StudyDefinition(
-    default_expectations={
-        "date": {"earliest": study_start_date, "latest": study_end_date},
-        "rate": "uniform",
-        "incidence": 0.5,
-    },
-    index_date=study_start_date,
-    population=patients.satisfying(
-        "currently_registered OR has_died",
-        currently_registered=patients.registered_as_of(study_end_date),
-        has_died=patients.with_death_recorded_in_primary_care(
-            between=[study_start_date, study_end_date], returning="binary_flag"
-        ),
-    ),
-    **calculate_code_frequency(start_date, end_date, selected_codelist),
-)
+study = build_study_definition_for_counts(selected_codelist)
