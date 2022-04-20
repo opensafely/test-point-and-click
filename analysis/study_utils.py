@@ -1,6 +1,54 @@
-import pandas as pd
+from datetime import date, datetime
 import numpy as np
 from dateutil import relativedelta
+from cohortextractor import (
+    StudyDefinition,
+    codelist,
+    patients,
+)
+
+from variables import study_start_date, study_end_date
+
+
+def build_study_definition_for_counts(codelist):
+    start_date = datetime.strptime(study_start_date, "%Y-%m-%d").date()
+    end_date = datetime.strptime(study_end_date, "%Y-%m-%d").date()
+
+    return StudyDefinition(
+        default_expectations={
+            "date": {"earliest": study_start_date, "latest": study_end_date},
+            "rate": "uniform",
+            "incidence": 0.5,
+        },
+        index_date=study_start_date,
+        population=patients.satisfying(
+            "currently_registered OR has_died",
+            currently_registered=patients.registered_as_of(study_end_date),
+            has_died=patients.with_death_recorded_in_primary_care(
+                between=[study_start_date, study_end_date], returning="binary_flag"
+            ),
+        ),
+        **calculate_code_frequency(start_date, end_date, codelist),
+    )
+
+
+def calculate_code_frequency(start_date, end_date, selected_codes):
+    start_date_formatted = date.strftime(start_date, "%Y-%m-%d")
+    end_date_formatted = date.strftime(end_date, "%Y-%m-%d")
+
+    variables = {}
+    for code in selected_codes:
+        variables[f"code_{code}"] = patients.with_these_clinical_events(
+            codelist([code], system="snomed"),
+            between=[start_date_formatted, end_date_formatted],
+            episode_defined_as="series of events each <= 0 days apart",
+            returning="number_of_episodes",
+            return_expectations={
+                "incidence": 0.1,
+                "int": {"distribution": "normal", "mean": 3, "stddev": 1},
+            },
+        )
+    return variables
 
 
 def last_day_of_month(dt):
@@ -101,6 +149,9 @@ def create_top_5_code_table(
 
     # Rename the code column to something consistent
     event_counts.rename(columns={code_column: "Code"}, inplace=True)
+
+    # Drop the `code_` prefix
+    event_counts["Code"] = event_counts["Code"].str.slice(5)
 
     # drop events column
     event_counts = event_counts.loc[
