@@ -1,5 +1,5 @@
 from cohortextractor import codelist_from_csv
-from variables import build_study_definition_for_counts
+from study_utils import build_study_definition_for_counts
 
 
 selected_codelist = codelist_from_csv(
