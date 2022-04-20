@@ -26,7 +26,7 @@ def calculate_code_frequency(start_date, end_date, selected_codes):
 
     variables = {}
     for code in selected_codes:
-        variables[code] = patients.with_these_clinical_events(
+        variables[f"code_{code}"] = patients.with_these_clinical_events(
             codelist([code], system="snomed"),
             between=[start_date_formatted, end_date_formatted],
             episode_defined_as="series of events each <= 0 days apart",

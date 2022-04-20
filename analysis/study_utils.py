@@ -102,6 +102,9 @@ def create_top_5_code_table(
     # Rename the code column to something consistent
     event_counts.rename(columns={code_column: "Code"}, inplace=True)
 
+    # Drop the `code_` prefix
+    event_counts["Code"] = event_counts["Code"].str.slice(5)
+
     # drop events column
     event_counts = event_counts.loc[
         :, ["Code", "Description", "Proportion of codes (%)"]
