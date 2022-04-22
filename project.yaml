@@ -69,3 +69,14 @@ actions:
     outputs:
       moderately_sensitive:
         table: output/top_5_code_table_*.csv
+
+  generate_codelist_report:
+    run: >
+      cohortextractor:latest generate_codelist_report
+        --output-dir=output
+        --codelist-path=codelists/opensafely-systolic-blood-pressure-qof.csv
+        --start-date=2021-01-01
+        --end-date=2021-12-31
+    outputs:
+      moderately_sensitive:
+        table: output/counts_per_*.csv
