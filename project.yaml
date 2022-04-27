@@ -34,7 +34,13 @@ actions:
     outputs:
       highly_sensitive:
         cohort: output/input_weekly_*.feather
-    
+
+  generate_weekly_summary_table:
+    run: python:latest python analysis/weekly_summary.py
+    needs: [generate_study_population_weekly]
+    outputs:
+      moderately_sensitive:
+        table: output/weekly_count.csv
 
   generate_study_counts_bp:
     run: >
