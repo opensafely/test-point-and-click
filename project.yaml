@@ -10,8 +10,15 @@ actions:
     outputs:
       moderately_sensitive:
         weekly: output/dummy/counts_per_code.csv
-        codes: output/dummy/measure_counts_per_week.csv
+        codes: output/dummy/counts_per_week.csv
   
+  generate_measures:
+    run: python:latest python analysis/generate_measures.py
+    needs: [generate_dummy_data]
+    outputs:
+      moderately_sensitive:
+        measure: output/dummy/measure_counts_per_week.csv
+
   generate_deciles_charts:
     run: >
       deciles-charts:v0.0.15
@@ -23,7 +30,7 @@ actions:
         output: true
       charts:
         output: true
-    needs: [generate_dummy_data]
+    needs: [generate_measures]
     outputs:
       moderately_sensitive:
         deciles_charts: output/deciles_*_*.*
