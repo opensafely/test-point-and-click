@@ -27,12 +27,12 @@ for code in range(16):
             )
 
 
-counts = pd.DataFrame(rows, columns=["code", "date", "practice", "num"])
+counts = pd.DataFrame(rows, columns=["code", "date", "practice", "value"])
 counts["date"] = pd.to_datetime(counts["date"])
 
-counts_per_code = counts.groupby("code")["num"].sum()
+counts_per_code = counts.groupby("code")["value"].sum()
 counts_per_code.to_csv("output/dummy/counts_per_code.csv")
 
 grouper = pd.Grouper(key="date", freq="W-MON")
-counts_per_week = counts.groupby(["practice", grouper])["num"].sum()
-counts_per_week.to_csv("output/dummy/counts_per_week.csv")
+counts_per_week = counts.groupby(["practice", grouper])["value"].sum()
+counts_per_week.to_csv("output/dummy/measure_counts_per_week.csv")
