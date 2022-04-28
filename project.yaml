@@ -10,8 +10,24 @@ actions:
     outputs:
       moderately_sensitive:
         weekly: output/dummy/counts_per_code.csv
-        codes: output/dummy/counts_per_week.csv
-        
+        codes: output/dummy/measure_counts_per_week.csv
+  
+  generate_deciles_charts:
+    run: >
+      deciles-charts:v0.0.15
+        --input-files output/dummy/measure_counts_per_week.csv
+        --output-dir output
+    config:
+      show_outer_percentiles: false
+      tables:
+        output: true
+      charts:
+        output: true
+    needs: [generate_dummy_data]
+    outputs:
+      moderately_sensitive:
+        deciles_charts: output/deciles_*_*.*
+
   generate_study_population:
     run: >
       cohortextractor:latest generate_cohort
