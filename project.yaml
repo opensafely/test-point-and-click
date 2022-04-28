@@ -5,6 +5,13 @@ expectations:
 
 actions:
 
+  generate_dummy_data:
+    run: python:latest python analysis/generate_dummy_data.py
+    outputs:
+      moderately_sensitive:
+        weekly: output/dummy/counts_per_code.csv
+        codes: output/dummy/counts_per_week.csv
+        
   generate_study_population:
     run: >
       cohortextractor:latest generate_cohort
