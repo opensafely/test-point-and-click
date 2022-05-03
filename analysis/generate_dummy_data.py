@@ -35,4 +35,4 @@ counts_per_code.to_csv("output/dummy/counts_per_code.csv")
 
 grouper = pd.Grouper(key="date", freq="W-MON")
 counts_per_week = counts.groupby(["practice", grouper])["num"].sum()
-counts_per_week.to_csv("output/dummy/counts_per_week.csv")
+counts_per_week.to_csv("output/dummy/counts_per_week_practice.csv")
