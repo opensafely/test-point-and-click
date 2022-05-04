@@ -4,37 +4,7 @@ expectations:
   population_size: 1000
 
 actions:
-
-  generate_dummy_data:
-    run: python:latest python analysis/generate_dummy_data.py
-    outputs:
-      moderately_sensitive:
-        weekly: output/dummy/counts_per_code.csv
-        codes: output/dummy/counts_per_week_practice.csv
   
-  generate_measures:
-    run: python:latest python analysis/generate_measures.py
-    needs: [generate_dummy_data]
-    outputs:
-      moderately_sensitive:
-        measure: output/dummy/measure_counts_per_week_practice.csv
-
-  generate_deciles_charts:
-    run: >
-      deciles-charts:v0.0.15
-        --input-files output/dummy/measure_counts_per_week_practice.csv
-        --output-dir output
-    config:
-      show_outer_percentiles: false
-      tables:
-        output: true
-      charts:
-        output: true
-    needs: [generate_measures]
-    outputs:
-      moderately_sensitive:
-        deciles_charts: output/deciles_*_*.*
-
   generate_study_population:
     run: >
       cohortextractor:latest generate_cohort
@@ -115,3 +85,26 @@ actions:
     outputs:
       moderately_sensitive:
         table: output/counts_per_*.csv
+
+  generate_measures:
+    run: python:latest python analysis/generate_measures.py
+    needs: [generate_codelist_report]
+    outputs:
+      moderately_sensitive:
+        measure: output/measure_counts_per_week_practice.csv
+
+  generate_deciles_charts:
+    run: >
+      deciles-charts:v0.0.15
+        --input-files output/measure_counts_per_week_practice.csv
+        --output-dir output
+    config:
+      show_outer_percentiles: false
+      tables:
+        output: true
+      charts:
+        output: true
+    needs: [generate_measures]
+    outputs:
+      moderately_sensitive:
+        deciles_charts: output/deciles_*_*.*
