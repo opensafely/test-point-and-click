@@ -10,19 +10,19 @@ actions:
     outputs:
       moderately_sensitive:
         weekly: output/dummy/counts_per_code.csv
-        codes: output/dummy/counts_per_week.csv
+        codes: output/dummy/counts_per_week_practice.csv
   
   generate_measures:
     run: python:latest python analysis/generate_measures.py
     needs: [generate_dummy_data]
     outputs:
       moderately_sensitive:
-        measure: output/dummy/measure_counts_per_week.csv
+        measure: output/dummy/measure_counts_per_week_practice.csv
 
   generate_deciles_charts:
     run: >
       deciles-charts:v0.0.15
-        --input-files output/dummy/measure_counts_per_week.csv
+        --input-files output/dummy/measure_counts_per_week_practice.csv
         --output-dir output
     config:
       show_outer_percentiles: false
@@ -54,7 +54,6 @@ actions:
       highly_sensitive:
         cohort: output/input_monthly_*.feather
     
-
   generate_study_population_weekly:
     run: >
       cohortextractor:latest generate_cohort
