@@ -92,12 +92,12 @@ actions:
     needs: [generate_codelist_report]
     outputs:
       moderately_sensitive:
-        measure: output/measure_counts_per_week_practice.csv
+        measure: output/measure_counts_per_week_per_practice.csv
 
   generate_deciles_charts:
     run: >
       deciles-charts:v0.0.15
-        --input-files output/measure_counts_per_week_practice.csv
+        --input-files output/measure_counts_per_week_per_practice.csv
         --output-dir output
     config:
       show_outer_percentiles: false
