@@ -85,6 +85,7 @@ actions:
     outputs:
       moderately_sensitive:
         table: output/counts_per_*.csv
+        list_sizes: output/list_sizes.csv
 
   generate_measures:
     run: python:latest python analysis/generate_measures.py
