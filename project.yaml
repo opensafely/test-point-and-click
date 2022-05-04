@@ -4,7 +4,7 @@ expectations:
   population_size: 1000
 
 actions:
-
+  
   generate_study_population:
     run: >
       cohortextractor:latest generate_cohort
@@ -24,7 +24,6 @@ actions:
       highly_sensitive:
         cohort: output/input_monthly_*.feather
     
-
   generate_study_population_weekly:
     run: >
       cohortextractor:latest generate_cohort
@@ -86,3 +85,27 @@ actions:
     outputs:
       moderately_sensitive:
         table: output/counts_per_*.csv
+        list_sizes: output/list_sizes.csv
+
+  generate_measures:
+    run: python:latest python analysis/generate_measures.py
+    needs: [generate_codelist_report]
+    outputs:
+      moderately_sensitive:
+        measure: output/measure_counts_per_week_practice.csv
+
+  generate_deciles_charts:
+    run: >
+      deciles-charts:v0.0.15
+        --input-files output/measure_counts_per_week_practice.csv
+        --output-dir output
+    config:
+      show_outer_percentiles: false
+      tables:
+        output: true
+      charts:
+        output: true
+    needs: [generate_measures]
+    outputs:
+      moderately_sensitive:
+        deciles_charts: output/deciles_*_*.*
