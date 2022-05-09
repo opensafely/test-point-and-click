@@ -26,7 +26,7 @@ actions:
 
   generate_top_5_table:
     run: python:latest python analysis/top_codes_table.py
-
+    needs: [generate_codelist_report]
     outputs:
       moderately_sensitive:
         table: output/top_5_code_table_*.csv

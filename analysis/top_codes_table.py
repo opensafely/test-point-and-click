@@ -10,7 +10,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 
 
 def main():
-    code_df = pd.read_csv(OUTPUT_DIR / "dummy/counts_per_code.csv")
+    code_df = pd.read_csv(OUTPUT_DIR / "counts_per_code.csv")
     codelist = pd.read_csv(codelist_dict["bp"])
 
     top_5_code_table = create_top_5_code_table(
@@ -20,8 +20,7 @@ def main():
         term_column="term",
         low_count_threshold=low_count_threshold,
     )
-    top_5_code_table.to_csv(OUTPUT_DIR / f"top_5_code_table_{s}.csv", index=False)
-
+    top_5_code_table.to_csv(OUTPUT_DIR / f"top_5_code_table.csv", index=False)
 
 if __name__ == "__main__":
     main()
