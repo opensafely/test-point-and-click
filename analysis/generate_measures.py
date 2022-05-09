@@ -1,5 +1,5 @@
 import pandas as pd
-import json
+import numpy as np
 from study_utils import calculate_rate
 from variables import frequency
 
@@ -14,16 +14,21 @@ counts_table.to_csv("output/measure_counts_per_week_per_practice.csv", index=Fal
 
 # count total number of events
 event_counts = {}
-event_counts["total_events"] = int(counts_table["num"].sum())
+total_events = int(counts_table["num"].sum())
 
 
 # total events in last week/month
 latest_time_period = counts_table["date"].max()
-event_counts["events_in_latest_period"] = int(counts_table.loc[counts_table["date"] == latest_time_period, "num"].sum())
+events_in_latest_period = int(counts_table.loc[counts_table["date"] == latest_time_period, "num"].sum())
 
+events_counts = pd.DataFrame(
+    {"total_events": total_events,
+    "events_in_latest_period": events_in_latest_period,
+    "unique_patients": np.nan},
+    index=['count']
+)
 
-with open(f"output/event_counts.json", "w") as f:
-    json.dump(event_counts, f)
+events_counts.to_csv("output/event_counts.csv")
 
 
 
