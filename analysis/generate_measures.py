@@ -28,6 +28,7 @@ events_counts = pd.DataFrame(
     index=['count']
 )
 
+events_counts = events_counts.T
 events_counts.to_csv("output/event_counts.csv")
 
 
