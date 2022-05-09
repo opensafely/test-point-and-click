@@ -3,8 +3,8 @@ import numpy as np
 from study_utils import calculate_rate
 from variables import frequency
 
-counts_table = pd.read_csv("output/dummy/counts_per_week_per_practice.csv", parse_dates=["date"])
-list_sizes = pd.read_csv("output/dummy/list_sizes.csv")
+counts_table = pd.read_csv("output/counts_per_week_per_practice.csv", parse_dates=["date"])
+list_sizes = pd.read_csv("output/list_sizes.csv")
 
 counts_table = counts_table.merge(list_sizes, on=["practice"], how="inner")
 counts_table["value"] = counts_table["num"] / counts_table["list_size"]
