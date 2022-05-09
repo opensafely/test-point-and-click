@@ -174,3 +174,11 @@ def calculate_rate(df, value_col, rate_per=1000, round_rate=False):
         rate = df[value_col] * rate_per
 
     return rate
+
+def round_values(x, base=5):
+    if not np.isnan(x):
+        rounded = int(base * round(x/base))
+    else:
+        rounded = np.nan
+    return  rounded
+
