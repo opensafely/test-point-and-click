@@ -26,7 +26,7 @@ actions:
 
   generate_measures:
     run: python:latest python analysis/generate_measures.py
-    needs: [generate_dummy_data]
+    needs: [generate_codelist_report]
     outputs:
       moderately_sensitive:
         measure: output/measure_counts_per_week_per_practice.csv
