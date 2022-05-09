@@ -17,19 +17,27 @@ actions:
         table: output/counts_per_*.csv
         list_sizes: output/list_sizes.csv
 
+  generate_dummy_data:
+    run: python:latest python analysis/generate_dummy_data.py
+    outputs:
+      moderately_sensitive:
+        weekly: output/dummy/counts_per_code.csv
+        codes: output/dummy/counts_per_week_per_practice.csv
+
   generate_measures:
     run: python:latest python analysis/generate_measures.py
-    needs: [generate_codelist_report]
+    needs: [generate_dummy_data]
     outputs:
       moderately_sensitive:
         measure: output/measure_counts_per_week_per_practice.csv
+        event_counts: output/event_counts.csv
 
   generate_top_5_table:
     run: python:latest python analysis/top_codes_table.py
     needs: [generate_codelist_report]
     outputs:
       moderately_sensitive:
-        table: output/top_5_code_table_*.csv
+        table: output/top_5_code_table.csv
 
   generate_deciles_charts:
     run: >
