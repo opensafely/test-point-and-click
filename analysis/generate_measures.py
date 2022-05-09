@@ -12,8 +12,21 @@ counts_table = counts_table.merge(list_sizes, on=["practice"], how="inner")
 counts_table["value"] = counts_table["num"] / counts_table["list_size"]
 counts_table["value"] = calculate_rate(counts_table, "value", round_rate=True)
 
+practice_count_total = len(np.unique(counts_table["practice"]))
 #drop practices with no events for entire period
 counts_table = drop_irrelevant_practices(counts_table)
+
+practice_count_subset = len(np.unique(counts_table["practice"]))
+
+practice_count = pd.DataFrame(
+    {
+        "total": practice_count_total,
+        "with_at_least_1_event": practice_count_subset
+    },
+    index=["count"],
+)
+practice_count.T.to_csv("output/practice_count.csv")
+
 
 counts_table.to_csv("output/measure_counts_per_week_per_practice.csv", index=False)
 

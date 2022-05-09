@@ -31,6 +31,7 @@ actions:
       moderately_sensitive:
         measure: output/measure_counts_per_week_per_practice.csv
         event_counts: output/event_counts.csv
+        practice_count: output/practice_count.csv
 
   generate_top_5_table:
     run: python:latest python analysis/top_codes_table.py
