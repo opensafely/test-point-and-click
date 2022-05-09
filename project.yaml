@@ -5,14 +5,6 @@ expectations:
 
 actions:
   
-  
-  generate_top_5_table:
-    run: python:latest python analysis/top_codes_table.py
-    needs: [generate_study_counts_bp, generate_study_counts_aaa]
-    outputs:
-      moderately_sensitive:
-        table: output/top_5_code_table_*.csv
-
   generate_codelist_report:
     run: >
       cohortextractor:latest generate_codelist_report
@@ -31,6 +23,13 @@ actions:
     outputs:
       moderately_sensitive:
         measure: output/measure_counts_per_week_per_practice.csv
+
+  generate_top_5_table:
+    run: python:latest python analysis/top_codes_table.py
+
+    outputs:
+      moderately_sensitive:
+        table: output/top_5_code_table_*.csv
 
   generate_deciles_charts:
     run: >
