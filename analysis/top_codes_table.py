@@ -1,9 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from study_utils import create_top_5_code_table
-from variables import codelist_dict, low_count_threshold
-import glob
-import os
+from variables import codelist_file, low_count_threshold
 
 BASE_DIR = Path(__file__).parents[1]
 OUTPUT_DIR = BASE_DIR / "output"
@@ -11,7 +9,7 @@ OUTPUT_DIR = BASE_DIR / "output"
 
 def main():
     code_df = pd.read_csv(OUTPUT_DIR / "counts_per_code.csv")
-    codelist = pd.read_csv(codelist_dict["bp"])
+    codelist = pd.read_csv(codelist_file)
 
     top_5_code_table = create_top_5_code_table(
         df=code_df,
