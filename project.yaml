@@ -37,7 +37,7 @@ actions:
     needs: [generate_codelist_report]
     outputs:
       moderately_sensitive:
-        table: output/top_5_code_table_*.csv
+        table: output/top_5_code_table.csv
 
   generate_deciles_charts:
     run: >
