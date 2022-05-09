@@ -101,7 +101,7 @@ def group_low_values(df, count_column, code_column, threshold):
 
 
 def create_top_5_code_table(
-    df, code_df, code_column, term_column, low_count_threshold, nrows=5
+    df, code_df, code_column, term_column, low_count_threshold, rounding_base, nrows=5
 ):
     """Creates a table of the top 5 codes recorded with the number of events and % makeup of each code.
     Args:
@@ -111,6 +111,7 @@ def create_top_5_code_table(
         term_column: The name of the term column in the codelist table.
         measure: The measure ID.
         low_count_threshold: Value to use as threshold for disclosure control.
+        rounding_base: Base to round to.
         nrows: The number of rows to display.
     Returns:
         A table of the top `nrows` codes.
@@ -126,6 +127,11 @@ def create_top_5_code_table(
     event_counts = group_low_values(
         event_counts, "num", code_column, low_count_threshold
     )
+
+    # round
+
+    event_counts["num"] = round_values(event_counts["num"], rounding_base)
+
 
     # calculate % makeup of each code
     total_events = event_counts["num"].sum()
