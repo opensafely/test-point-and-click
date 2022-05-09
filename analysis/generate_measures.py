@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from study_utils import calculate_rate, round_values
+from study_utils import calculate_rate, round_values, drop_irrelevant_practices
 from variables import low_count_threshold, rounding_base
 
 counts_table = pd.read_csv(
@@ -11,6 +11,9 @@ list_sizes = pd.read_csv("output/list_sizes.csv")
 counts_table = counts_table.merge(list_sizes, on=["practice"], how="inner")
 counts_table["value"] = counts_table["num"] / counts_table["list_size"]
 counts_table["value"] = calculate_rate(counts_table, "value", round_rate=True)
+
+#drop practices with no events for entire period
+counts_table = drop_irrelevant_practices(counts_table)
 
 counts_table.to_csv("output/measure_counts_per_week_per_practice.csv", index=False)
 
