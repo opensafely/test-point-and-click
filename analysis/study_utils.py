@@ -94,7 +94,7 @@ def group_low_values(df, count_column, code_column, threshold):
 
         # add suppressed count as "Other" row (if > threshold)
         if suppressed_count > threshold:
-            suppressed_count = {"code": "Other", "count": suppressed_count}
+            suppressed_count = {"code": "Other", count_column: suppressed_count}
             df = df.append(suppressed_count, ignore_index=True)
 
     return df
@@ -116,10 +116,12 @@ def create_top_5_code_table(
         A table of the top `nrows` codes.
     """
 
+    # cast both code columns to str
+    df[code_column] = df[code_column].astype(str)
+    code_df[code_column] = code_df[code_column].astype(str)
+
     # sum event counts over patients
-    event_counts = (
-        df.sort_values(ascending=False, by="num")
-    )
+    event_counts = df.sort_values(ascending=False, by="num")
 
     event_counts = group_low_values(
         event_counts, "num", code_column, low_count_threshold
@@ -145,10 +147,7 @@ def create_top_5_code_table(
 
     # Rename the code column to something consistent
     event_counts.rename(columns={code_column: "Code"}, inplace=True)
-
-    # Drop the `code_` prefix
-    event_counts["Code"] = event_counts["Code"].str.slice(5)
-
+    
     # drop events column
     event_counts = event_counts.loc[
         :, ["Code", "Description", "Proportion of codes (%)"]
@@ -156,6 +155,7 @@ def create_top_5_code_table(
 
     # return top n rows
     return event_counts.head(5)
+
 
 def calculate_rate(df, value_col, rate_per=1000, round_rate=False):
     """Calculates the number of events per 1,000 of the population.
