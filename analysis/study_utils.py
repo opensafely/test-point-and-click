@@ -101,7 +101,7 @@ def group_low_values(df, count_column, code_column, threshold):
 
 
 def create_top_5_code_table(
-    df, code_df, code_column, term_column, low_count_threshold, nrows=5
+    df, code_df, code_column, term_column, low_count_threshold, rounding_base, nrows=5
 ):
     """Creates a table of the top 5 codes recorded with the number of events and % makeup of each code.
     Args:
@@ -111,6 +111,7 @@ def create_top_5_code_table(
         term_column: The name of the term column in the codelist table.
         measure: The measure ID.
         low_count_threshold: Value to use as threshold for disclosure control.
+        rounding_base: Base to round to.
         nrows: The number of rows to display.
     Returns:
         A table of the top `nrows` codes.
@@ -126,6 +127,11 @@ def create_top_5_code_table(
     event_counts = group_low_values(
         event_counts, "num", code_column, low_count_threshold
     )
+
+    # round
+
+    event_counts["num"] = round_values(event_counts["num"], rounding_base)
+
 
     # calculate % makeup of each code
     total_events = event_counts["num"].sum()
@@ -174,3 +180,82 @@ def calculate_rate(df, value_col, rate_per=1000, round_rate=False):
         rate = df[value_col] * rate_per
 
     return rate
+
+def round_values(x, base=5):
+    if not np.isnan(x):
+        rounded = int(base * round(x/base))
+    else:
+        rounded = np.nan
+    return  rounded
+
+ 
+
+def compute_deciles(measure_table, groupby_col, values_col, has_outer_percentiles=True):
+    """Computes deciles.
+    Args:
+        measure_table: A measure table.
+        groupby_col: The name of the column to group by.
+        values_col: The name of the column for which deciles are computed.
+        has_outer_percentiles: Whether to compute the nine largest and nine smallest
+            percentiles as well as the deciles.
+    Returns:
+        A data frame with `groupby_col`, `values_col`, and `percentile` columns.
+    """
+    quantiles = np.arange(0.1, 1, 0.1)
+    if has_outer_percentiles:
+        quantiles = np.concatenate(
+            [quantiles, np.arange(0.01, 0.1, 0.01), np.arange(0.91, 1, 0.01)]
+        )
+
+    percentiles = (
+        measure_table.groupby(groupby_col)[values_col]
+        .quantile(pd.Series(quantiles, name="percentile"))
+        .reset_index()
+    )
+    percentiles["percentile"] = percentiles["percentile"].apply(lambda x: int(x * 100))
+
+    return percentiles
+
+
+def get_practice_deciles(measure_table, value_column):
+    measure_table["percentile"] = measure_table.groupby(["date"])[
+        value_column
+    ].transform(lambda x: pd.cut(x, 100, labels=range(1, 101)))
+
+    return measure_table
+
+def drop_irrelevant_practices(df):
+    """Drops irrelevant practices from the given measure table.
+    An irrelevant practice has zero events during the study period.
+    Args:
+        df: A measure table.
+    Returns:
+        A copy of the given measure table with irrelevant practices dropped.
+    """
+    is_relevant = df.groupby("practice").value.any()
+    return df[df.practice.isin(is_relevant[is_relevant == True].index)]
+
+def compute_redact_deciles(df, period_column, count_column, column):
+    n_practices = df.groupby(by=["date"])[["practice"]].nunique()
+
+    count_df = compute_deciles(
+        measure_table=df,
+        groupby_col=period_column,
+        values_col=count_column,
+        has_outer_percentiles=False,
+    )
+    quintile_10 = count_df[count_df["percentile"] == 10][["date", count_column]]
+    df = (
+        compute_deciles(df, period_column, column, False)
+        .merge(n_practices, on="date")
+        .merge(quintile_10, on="date")
+    )
+
+    # if quintile 10 is 0, make sure at least 5 practices have 0. If >0, make sure more than 5 practices are in this bottom decile
+    df["drop"] = (((df["practice"] * 0.1) * df[count_column]) <= 5) & (
+        df[count_column] != 0
+    ) | ((df[count_column] == 0) & (df["practice"] <= 5))
+
+    df.loc[df["drop"] == True, ["rate"]] = np.nan
+
+    return df
