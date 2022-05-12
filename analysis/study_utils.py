@@ -130,7 +130,7 @@ def create_top_5_code_table(
 
     # round
 
-    event_counts["num"] = round_values(event_counts["num"], rounding_base)
+    event_counts["num"] = event_counts["num"].apply(lambda x: round_values(x, rounding_base))
 
 
     # calculate % makeup of each code
