@@ -1,5 +1,7 @@
+from email import utils
 import pytest
 import pandas as pd
+import numpy as np
 from pandas import testing
 import study_utils
 
@@ -17,17 +19,6 @@ def measure_table():
             "list_size": pd.Series([10, 20, 4, 2, 8]),
             "value": pd.Series([0, 1, 1, 0, 1]),
         }
-    )
-
-
-@pytest.fixture()
-def events_count_table():
-    """Returns an events code table produced by generate_measures.py."""
-    return pd.DataFrame(
-        {
-            "count": pd.Series([100, 20, 10]),
-        },
-        index=["total_events", "events_in_latest_period", "unique_patients"],
     )
 
 
@@ -75,6 +66,24 @@ top_5_codes_params = [
     },
 ]
 
+events_counts_params = [
+    # no low numbers
+    {
+        "obs": {"count": [100, 8, 16]},
+        "exp": {"count": [100, 10, 15]},
+    },
+    # all low numbers
+    {
+        "obs": {"count": [4, 1, 1]},
+        "exp": {"count": [np.nan, np.nan, np.nan]},
+    },
+    # some low numbers
+    {
+        "obs": {"count": [12, 2, 3]},
+        "exp": {"count": [10, np.nan, np.nan]},
+    },
+]
+
 
 @pytest.fixture()
 def codelist():
@@ -119,5 +128,25 @@ def test_create_top_5_code_table(top_5_codes_params, codelist):
         exp["Code"] = exp["Code"].astype(str)
         exp["Description"] = exp["Description"].astype(str)
         exp["Proportion of codes (%)"] = exp["Proportion of codes (%)"].astype(float)
+
+    testing.assert_frame_equal(obs, exp)
+
+
+@pytest.mark.parametrize("events_counts_table", events_counts_params)
+def test_redact_events_table(events_counts_table):
+
+    # make events table
+
+    events_table = pd.DataFrame(
+        {"count": pd.Series(events_counts_table["obs"]["count"])},
+        index=["total_events", "events_in_latest_period", "unique_patients"],
+    )
+
+    obs = study_utils.redact_events_table(events_table, 5, 5)
+
+    exp = pd.DataFrame(
+        {"count": pd.Series(events_counts_table["exp"]["count"])},
+        index=["total_events", "events_in_latest_period", "unique_patients"],
+    )
 
     testing.assert_frame_equal(obs, exp)
