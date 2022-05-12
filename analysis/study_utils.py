@@ -130,7 +130,7 @@ def create_top_5_code_table(
 
     # round
 
-    event_counts["num"] = round_values(event_counts["num"], rounding_base)
+    event_counts["num"] = event_counts["num"].apply(lambda x: round_values(x, rounding_base))
 
 
     # calculate % makeup of each code
@@ -259,3 +259,15 @@ def compute_redact_deciles(df, period_column, count_column, column):
     df.loc[df["drop"] == True, ["rate"]] = np.nan
 
     return df
+
+def redact_events_table(events_counts, low_count_threshold, rounding_base):
+    # redact low counts
+    events_counts[events_counts <= low_count_threshold] = f"<={low_count_threshold}"
+
+
+    # round
+    events_counts["count"] = events_counts["count"].apply(
+        lambda x: round_values(x, base=rounding_base)
+    )
+    
+    return events_counts
