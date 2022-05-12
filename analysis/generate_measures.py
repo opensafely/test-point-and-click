@@ -1,6 +1,11 @@
 import pandas as pd
 import numpy as np
-from study_utils import calculate_rate, round_values, drop_irrelevant_practices
+from study_utils import (
+    calculate_rate,
+    round_values,
+    drop_irrelevant_practices,
+    redact_events_table,
+)
 from variables import low_count_threshold, rounding_base
 
 counts_table = pd.read_csv(
@@ -13,16 +18,13 @@ counts_table["value"] = counts_table["num"] / counts_table["list_size"]
 counts_table["value"] = calculate_rate(counts_table, "value", round_rate=True)
 
 practice_count_total = len(np.unique(counts_table["practice"]))
-#drop practices with no events for entire period
+# drop practices with no events for entire period
 counts_table = drop_irrelevant_practices(counts_table)
 
 practice_count_subset = len(np.unique(counts_table["practice"]))
 
 practice_count = pd.DataFrame(
-    {
-        "total": practice_count_total,
-        "with_at_least_1_event": practice_count_subset
-    },
+    {"total": practice_count_total, "with_at_least_1_event": practice_count_subset},
     index=["count"],
 )
 practice_count.T.to_csv("output/practice_count.csv")
@@ -53,13 +55,6 @@ events_counts = pd.DataFrame(
 
 events_counts = events_counts.T
 
-# redact low counts
-events_counts[events_counts <= low_count_threshold] = f"<={low_count_threshold}"
-
-
-# round
-events_counts["count"] = events_counts["count"].apply(
-    lambda x: round_values(x, base=rounding_base)
+redact_events_table(events_counts, low_count_threshold, rounding_base).to_csv(
+    "output/event_counts.csv"
 )
-
-events_counts.to_csv("output/event_counts.csv")
