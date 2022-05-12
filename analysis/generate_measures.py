@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 import numpy as np
 from study_utils import (
@@ -8,10 +10,16 @@ from study_utils import (
 )
 from variables import low_count_threshold, rounding_base
 
+if len(sys.argv) > 1:
+    output_dir = sys.argv[1]
+else:
+    output_dir = "output"
+
+
 counts_table = pd.read_csv(
-    "output/counts_per_week_per_practice.csv", parse_dates=["date"]
+    f"{output_dir}/counts_per_week_per_practice.csv", parse_dates=["date"]
 )
-list_sizes = pd.read_csv("output/list_sizes.csv")
+list_sizes = pd.read_csv(f"{output_dir}/list_sizes.csv")
 
 counts_table = counts_table.merge(list_sizes, on=["practice"], how="inner")
 counts_table["value"] = counts_table["num"] / counts_table["list_size"]
@@ -27,10 +35,10 @@ practice_count = pd.DataFrame(
     {"total": practice_count_total, "with_at_least_1_event": practice_count_subset},
     index=["count"],
 )
-practice_count.T.to_csv("output/practice_count.csv")
+practice_count.T.to_csv(f"{output_dir}/practice_count.csv")
 
 
-counts_table.to_csv("output/measure_counts_per_week_per_practice.csv", index=False)
+counts_table.to_csv(f"{output_dir}/measure_counts_per_week_per_practice.csv", index=False)
 
 # count total number of events
 
@@ -56,5 +64,5 @@ events_counts = pd.DataFrame(
 events_counts = events_counts.T
 
 redact_events_table(events_counts, low_count_threshold, rounding_base).to_csv(
-    "output/event_counts.csv"
+    f"{output_dir}/event_counts.csv"
 )
