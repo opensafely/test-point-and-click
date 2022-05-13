@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from pandas import testing
 import study_utils
+from hypothesis import strategies as st
+from hypothesis import assume, given
 
 
 @pytest.fixture()
@@ -150,3 +152,32 @@ def test_redact_events_table(events_counts_table):
     )
 
     testing.assert_frame_equal(obs, exp)
+
+
+
+@st.composite
+def distinct_strings_with_common_characters(draw):
+    count_column = draw(st.lists(st.one_of(st.none(), st.integers())))
+    code_column = draw(st.lists(st.text(min_size=1)))
+    assume(len(count_column) == len(code_column))
+
+    count_column_name = draw(st.text(min_size=1))
+    code_column_name = draw(st.text(min_size=1))
+    assume(count_column_name != code_column_name)
+    df = pd.DataFrame(
+        data={count_column_name: count_column, code_column_name: code_column}
+    )
+    return df
+
+
+@given(distinct_strings_with_common_characters(), st.integers())
+def test_group_low_values(df, threshold):
+    count_column, code_column = df.columns
+    result = study_utils.group_low_values(df, count_column, code_column, threshold)
+
+    assert list(result.columns) == list(df.columns)
+    assert not (result[count_column] < threshold).any()
+    suppressed_count = result[result[code_column] == "Other"][count_column]
+    assert len(suppressed_count) <= 1
+    if len(suppressed_count) == 1:
+        assert suppressed_count[0] >= threshold
