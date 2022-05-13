@@ -1,4 +1,3 @@
-from email import utils
 import pytest
 import pandas as pd
 import numpy as np
@@ -154,10 +153,9 @@ def test_redact_events_table(events_counts_table):
     testing.assert_frame_equal(obs, exp)
 
 
-
 @st.composite
 def distinct_strings_with_common_characters(draw):
-    count_column = draw(st.lists(st.one_of(st.none(), st.integers())))
+    count_column = draw(st.lists(st.one_of(st.none(), st.integers(min_value=0, max_value=100000))))
     code_column = draw(st.lists(st.text(min_size=1)))
     assume(len(count_column) == len(code_column))
 
@@ -170,7 +168,7 @@ def distinct_strings_with_common_characters(draw):
     return df
 
 
-@given(distinct_strings_with_common_characters(), st.integers())
+@given(distinct_strings_with_common_characters(), st.integers(min_value=0, max_value=10))
 def test_group_low_values(df, threshold):
     count_column, code_column = df.columns
     result = study_utils.group_low_values(df, count_column, code_column, threshold)
