@@ -155,7 +155,7 @@ def test_redact_events_table(events_counts_table):
 
 @st.composite
 def distinct_strings_with_common_characters(draw):
-    count_column = draw(st.lists(st.one_of(st.none(), st.integers(min_value=0, max_value=100000))))
+    count_column = draw(st.lists(st.one_of(st.none(), st.integers(min_value=0, max_value=10))))
     code_column = draw(st.lists(st.text(min_size=1)))
     assume(len(count_column) == len(code_column))
 
